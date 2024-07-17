@@ -4,7 +4,7 @@ export default function BudgetForm() {
   const [budget, setbudget] = useState(0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setbudget(+e.target.value);
+    setbudget(e.target.valueAsNumber);
   };
 
   const isValid = useMemo(() => {
