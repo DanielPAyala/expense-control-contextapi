@@ -5,6 +5,7 @@ import 'react-calendar/dist/Calendar.css';
 import { ChangeEvent, useState } from 'react';
 import { DraftExpense, Value } from '../types';
 import ErrorMessage from './ErrorMessage';
+import { useBudget } from '../hooks/useBudget';
 
 export default function ExpenseForm() {
   const [expense, setExpense] = useState<DraftExpense>({
@@ -15,6 +16,7 @@ export default function ExpenseForm() {
   });
 
   const [error, setError] = useState('');
+  const { dispatch } = useBudget();
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
@@ -35,10 +37,21 @@ export default function ExpenseForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Validate the form
     if (Object.values(expense).some((value) => !value)) {
       setError('Todos los campos son obligatorios');
       return;
     }
+
+    // Add the expense
+    dispatch({ type: 'add-expense', payload: { expense } });
+
+    setExpense({
+      amount: 0,
+      expenseName: '',
+      category: '',
+      date: new Date(),
+    });
   };
 
   return (
@@ -105,6 +118,7 @@ export default function ExpenseForm() {
         </label>
         <DatePicker
           name='date'
+          autoFocus
           className='bg-slate-100 p-2 border-0'
           value={expense.date}
           onChange={handleChangeDate}
