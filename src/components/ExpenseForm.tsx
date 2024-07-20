@@ -16,7 +16,9 @@ export default function ExpenseForm() {
   });
 
   const [error, setError] = useState('');
-  const { dispatch, state } = useBudget();
+  const [previousAmount, setPreviousAmount] = useState(0);
+
+  const { dispatch, state, remainingBudget } = useBudget();
 
   useEffect(() => {
     if (state.editingId) {
@@ -24,9 +26,8 @@ export default function ExpenseForm() {
         (currentExpense) => currentExpense.id === state.editingId
       )[0];
       setExpense(editingExpense);
+      setPreviousAmount(editingExpense.amount);
     }
-
-    return () => {};
   }, [state.editingId, state.expenses]);
 
   const handleChange = (
@@ -54,6 +55,11 @@ export default function ExpenseForm() {
       return;
     }
 
+    if (expense.amount - previousAmount > remainingBudget) {
+      setError('El gasto supera el presupuesto disponible');
+      return;
+    }
+
     if (state.editingId) {
       // Update the expense
       dispatch({
@@ -71,6 +77,8 @@ export default function ExpenseForm() {
       category: '',
       date: new Date(),
     });
+
+    setPreviousAmount(0);
   };
 
   return (
